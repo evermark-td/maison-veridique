@@ -1,0 +1,297 @@
+@import 'tailwindcss';
+@plugin 'tailwindcss-animate';
+
+@custom-variant dark (&:is(.dark *));
+
+/* ------------------------------------------------------------------
+   MAISON VÉRIDIQUE — design tokens
+   Ink on paper. Hairlines, whitespace, restraint.
+------------------------------------------------------------------ */
+
+/* `static` — emit every token, not only those a utility happens to reference.
+   The custom utilities below consume tokens Tailwind cannot see. */
+@theme static {
+  /* Brand palette */
+  --color-ink: #0a0a0a;
+  --color-noir: #050505;
+  --color-paper: #faf9f7;
+  --color-bone: #efebe5;
+  --color-stone: #8a857e;
+  --color-brass: #7a6a55;
+
+  /* Semantic (shadcn-compatible) */
+  --color-background: var(--color-paper);
+  --color-foreground: var(--color-ink);
+  --color-card: var(--color-paper);
+  --color-card-foreground: var(--color-ink);
+  --color-popover: var(--color-paper);
+  --color-popover-foreground: var(--color-ink);
+  --color-primary: var(--color-ink);
+  --color-primary-foreground: var(--color-paper);
+  --color-secondary: var(--color-bone);
+  --color-secondary-foreground: var(--color-ink);
+  --color-muted: var(--color-bone);
+  --color-muted-foreground: var(--color-stone);
+  --color-accent: var(--color-brass);
+  --color-accent-foreground: var(--color-paper);
+  --color-destructive: #8b2f2f;
+  --color-destructive-foreground: var(--color-paper);
+  --color-border: var(--color-bone);
+  --color-input: var(--color-bone);
+  --color-ring: var(--color-ink);
+
+  /* Typography */
+  --font-display: var(--font-display-family), 'Times New Roman', serif;
+  --font-sans: var(--font-sans-family), ui-sans-serif, system-ui, sans-serif;
+
+  --text-micro: 0.6875rem; /* 11 */
+  --text-micro--line-height: 1.2;
+  --text-caption: 0.8125rem; /* 13 */
+  --text-caption--line-height: 1.4;
+  --text-body: 0.9375rem; /* 15 */
+  --text-body--line-height: 1.65;
+  --text-lead: 1.125rem; /* 18 */
+  --text-lead--line-height: 1.6;
+
+  /* Fluid display scale */
+  --text-d1: clamp(2.75rem, 1.2rem + 6.2vw, 10rem);
+  --text-d1--line-height: 0.92;
+  --text-d2: clamp(2.25rem, 1.2rem + 4.2vw, 7rem);
+  --text-d2--line-height: 0.96;
+  --text-d3: clamp(1.75rem, 1.1rem + 2.6vw, 4.25rem);
+  --text-d3--line-height: 1.04;
+  --text-d4: clamp(1.375rem, 1rem + 1.4vw, 2.125rem);
+  --text-d4--line-height: 1.15;
+
+  /* Radii — near-square by design */
+  --radius: 2px;
+  --radius-sm: 1px;
+  --radius-md: 2px;
+  --radius-lg: 2px;
+  --radius-full: 9999px;
+
+  /* Layout */
+  --container-page: 1440px;
+  --container-measure: 68ch;
+
+  /* Motion */
+  --ease-luxe: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-inout: cubic-bezier(0.65, 0, 0.35, 1);
+
+  --animate-marquee: marquee var(--marquee-duration, 32s) linear infinite;
+  --animate-accordion-down: accordion-down 0.35s var(--ease-luxe);
+  --animate-accordion-up: accordion-up 0.35s var(--ease-luxe);
+}
+
+@keyframes accordion-down {
+  from {
+    height: 0;
+  }
+  to {
+    height: var(--radix-accordion-content-height);
+  }
+}
+
+@keyframes accordion-up {
+  from {
+    height: var(--radix-accordion-content-height);
+  }
+  to {
+    height: 0;
+  }
+}
+
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    /* Two identical tracks; shifting one full track width loops seamlessly. */
+    transform: translateX(-100%);
+  }
+}
+
+/* Inverted surface — used for noir sections */
+.theme-noir,
+.dark {
+  --color-background: var(--color-noir);
+  --color-foreground: var(--color-paper);
+  --color-card: var(--color-noir);
+  --color-card-foreground: var(--color-paper);
+  --color-popover: var(--color-noir);
+  --color-popover-foreground: var(--color-paper);
+  --color-primary: var(--color-paper);
+  --color-primary-foreground: var(--color-ink);
+  --color-secondary: #161616;
+  --color-secondary-foreground: var(--color-paper);
+  --color-muted: #161616;
+  --color-muted-foreground: #9a948c;
+  --color-border: #1f1f1f;
+  --color-input: #1f1f1f;
+  --color-ring: var(--color-paper);
+}
+
+@layer base {
+  *,
+  ::after,
+  ::before {
+    border-color: var(--color-border);
+  }
+
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-sans);
+    font-size: var(--text-body);
+    line-height: 1.65;
+    text-rendering: optimizeLegibility;
+  }
+
+  ::selection {
+    background-color: var(--color-ink);
+    color: var(--color-paper);
+  }
+
+  :focus-visible {
+    outline: 1px solid var(--color-ring);
+    outline-offset: 3px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+
+    *,
+    ::before,
+    ::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+@utility container-page {
+  margin-inline: auto;
+  width: 100%;
+  max-width: var(--container-page);
+  padding-inline: 1.25rem;
+
+  @media (width >= 48rem) {
+    padding-inline: 2rem;
+  }
+
+  @media (width >= 80rem) {
+    padding-inline: 3rem;
+  }
+}
+
+/* Uppercase micro label — the house's connective tissue */
+@utility label-micro {
+  font-family: var(--font-sans);
+  font-size: var(--text-micro);
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--color-muted-foreground);
+}
+
+@utility display {
+  font-family: var(--font-display);
+  font-weight: 300;
+  letter-spacing: -0.02em;
+}
+
+@utility hairline {
+  border-top: 1px solid var(--color-border);
+}
+
+/* ------------------------------------------------------------------
+   Scroll reveals.
+
+   Content is VISIBLE by default. The hidden start-state is only applied
+   once the reveal is "armed" — which JS does solely when it confirms it
+   can animate (a foreground tab with IntersectionObserver). If animation
+   can't run (no JS, no IO, or a backgrounded tab where transitions are
+   frozen), content is simply never armed and stays visible. So a reveal
+   can only ever *enhance* visible content, never hide it permanently.
+------------------------------------------------------------------ */
+@layer components {
+  .reveal-item {
+    opacity: 1;
+    transform: none;
+  }
+
+  .reveal-item.reveal-armed {
+    opacity: 0;
+    transform: translateY(var(--reveal-y, 16px));
+    transition:
+      opacity var(--reveal-duration, 0.8s) var(--ease-luxe) var(--reveal-delay, 0s),
+      transform var(--reveal-duration, 0.8s) var(--ease-luxe) var(--reveal-delay, 0s);
+  }
+
+  .reveal-item.reveal-armed.is-visible {
+    opacity: 1;
+    transform: none;
+  }
+
+  /* Line-mask reveal: each line rides up out of an overflow-hidden clip. */
+  .reveal-line {
+    display: block;
+    transform: none;
+  }
+
+  .reveal-armed .reveal-line {
+    transform: translateY(110%);
+    transition: transform 0.9s var(--ease-luxe) var(--reveal-delay, 0s);
+  }
+
+  .reveal-armed.is-visible .reveal-line {
+    transform: translateY(0);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .reveal-item.reveal-armed {
+      transform: none;
+      transition: opacity 0.4s ease var(--reveal-delay, 0s);
+    }
+    .reveal-armed .reveal-line {
+      transform: none;
+    }
+  }
+}
+
+/* Hero CTA — underlined label with a masked roll-up on hover */
+@utility hero-cta {
+  position: relative;
+  display: inline-flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  font-family: var(--font-sans);
+  font-size: var(--text-micro);
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--color-paper);
+}
+
+@utility hero-cta-rule {
+  display: block;
+  height: 1px;
+  width: 100%;
+  transform-origin: left;
+  background-color: var(--color-paper);
+  transition: transform 0.6s var(--ease-luxe);
+}
+
+.hero-cta:hover .hero-cta-rule {
+  transform: scaleX(0);
+  transform-origin: right;
+}

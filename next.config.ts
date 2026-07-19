@@ -1,0 +1,38 @@
+import type { NextConfig } from 'next';
+
+const nextConfig: NextConfig = {
+  reactStrictMode: true,
+  poweredByHeader: false,
+  images: {
+    formats: ['image/avif', 'image/webp'],
+    remotePatterns: [
+      { protocol: 'https', hostname: 'images.unsplash.com' },
+      { protocol: 'https', hostname: '*.public.blob.vercel-storage.com' },
+    ],
+  },
+  experimental: {
+    optimizePackageImports: ['lucide-react', 'framer-motion'],
+    serverActions: {
+      // Image uploads via server actions; the action itself enforces 8 MB.
+      bodySizeLimit: '9mb',
+    },
+  },
+  async headers() {
+    return [
+      {
+        source: '/:path*',
+        headers: [
+          { key: 'X-Content-Type-Options', value: 'nosniff' },
+          { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
+          { key: 'X-Frame-Options', value: 'SAMEORIGIN' },
+          {
+            key: 'Permissions-Policy',
+            value: 'camera=(), microphone=(), geolocation=(self)',
+          },
+        ],
+      },
+    ];
+  },
+};
+
+export default nextConfig;
