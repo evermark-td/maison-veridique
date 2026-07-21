@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation';
 
 import { ProductForm } from '@/components/admin/product-form';
 import { ProductMediaManager } from '@/components/admin/product-media-manager';
+import { ProductVariantManager } from '@/components/admin/product-variant-manager';
 import { prisma } from '@/lib/prisma';
 import { buildMetadata } from '@/lib/seo';
 
@@ -27,6 +28,9 @@ export default async function EditProductPage({
         images: {
           orderBy: { sortOrder: 'asc' },
           include: { media: { select: { url: true, width: true, height: true } } },
+        },
+        variants: {
+          orderBy: [{ colorName: 'asc' }, { size: 'asc' }],
         },
       },
     }),
@@ -72,6 +76,21 @@ export default async function EditProductPage({
           alt: image.alt,
           width: image.media.width,
           height: image.media.height,
+        }))}
+      />
+
+      <ProductVariantManager
+        productId={product.id}
+        basePrice={Number(product.basePrice)}
+        variants={product.variants.map((variant) => ({
+          id: variant.id,
+          sku: variant.sku,
+          colorName: variant.colorName,
+          colorHex: variant.colorHex,
+          size: variant.size,
+          price: Number(variant.price),
+          stock: variant.stock,
+          isActive: variant.isActive,
         }))}
       />
     </div>

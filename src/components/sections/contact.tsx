@@ -35,7 +35,7 @@ export function Contact({ content }: { content: ContactContent }) {
             <dl className="mt-12 space-y-6">
               {channels.map((channel) => (
                 <div key={channel.label}>
-                  <dt className="label-micro text-paper/45">{channel.label}</dt>
+                  <dt className="label-micro text-paper/55">{channel.label}</dt>
                   <dd className="mt-1.5">
                     <Link
                       href={channel.href}
@@ -54,17 +54,17 @@ export function Contact({ content }: { content: ContactContent }) {
 
           <FadeIn delay={0.22}>
             <div className="mt-12 border-t border-paper/15 pt-8">
-              <p className="label-micro text-paper/45">Boutiques</p>
+              <p className="label-micro text-paper/55">Boutiques</p>
               <ul className="mt-4 space-y-4">
                 {boutiques.map((boutique) => (
                   <li key={boutique.city} className="text-body text-paper/75">
                     <span className="text-paper">{boutique.city}</span>
-                    <span className="text-paper/40"> — </span>
+                    <span aria-hidden className="text-paper/40"> — </span>
                     {boutique.address}
                   </li>
                 ))}
               </ul>
-              <p className="mt-6 text-caption text-paper/45">{hours}</p>
+              <p className="mt-6 text-caption text-paper/55">{hours}</p>
             </div>
           </FadeIn>
         </div>

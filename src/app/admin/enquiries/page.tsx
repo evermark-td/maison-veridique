@@ -75,12 +75,12 @@ export default async function AdminEnquiriesPage({
               href={filter.value ? `/admin/enquiries?status=${filter.value}` : '/admin/enquiries'}
               className={cn(
                 'text-micro font-medium tracking-[0.16em] uppercase transition-colors duration-300',
-                isActive ? 'text-foreground' : 'text-foreground/50 hover:text-foreground',
+                isActive ? 'text-foreground' : 'text-foreground/60 hover:text-foreground',
               )}
               aria-current={isActive ? 'page' : undefined}
             >
               {filter.label}
-              <span className="ml-1.5 text-foreground/40">{countFor(filter.value)}</span>
+              <span className="ml-1.5 text-foreground/60">{countFor(filter.value)}</span>
             </Link>
           );
         })}

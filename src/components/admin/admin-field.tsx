@@ -24,7 +24,7 @@ export function AdminField({
     <div className={cn('flex flex-col gap-2', className)}>
       <label htmlFor={htmlFor} className="label-micro">
         {label}
-        {required ? <span aria-hidden className="text-foreground/40"> *</span> : null}
+        {required ? <span aria-hidden className="text-foreground/60"> *</span> : null}
       </label>
       {children}
       {hint && !error ? <p className="text-caption text-muted-foreground">{hint}</p> : null}

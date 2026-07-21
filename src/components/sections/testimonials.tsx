@@ -64,7 +64,7 @@ export function Testimonials({ content }: { content: PressContent }) {
               <blockquote className="text-lead text-paper/85">
                 &ldquo;{testimonial.quote}&rdquo;
               </blockquote>
-              <div className="mt-6 [&_.label-micro]:text-paper/45 [&_span:first-child]:text-paper">
+              <div className="mt-6 [&_.label-micro]:text-paper/55 [&_span:first-child]:text-paper">
                 <Attribution {...testimonial} />
               </div>
             </FadeIn>
@@ -74,10 +74,10 @@ export function Testimonials({ content }: { content: PressContent }) {
 
       {/* Press marquee */}
       <div className="border-t border-paper/15 py-12 lg:py-16">
-        <p className="label-micro container-page mb-8 text-center text-paper/45">
+        <p className="label-micro container-page mb-8 text-center text-paper/55">
           As seen in
         </p>
-        <Marquee items={pressOutlets} itemClassName="text-paper/40" durationSeconds={38} />
+        <Marquee items={pressOutlets} itemClassName="text-paper/55" durationSeconds={38} />
       </div>
     </section>
   );

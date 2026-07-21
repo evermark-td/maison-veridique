@@ -21,6 +21,7 @@ export default async function CollectionsPage() {
   return (
     <div className="container-page py-16 lg:py-24">
       <SectionHeading
+        as="h1"
         eyebrow="The Collections"
         lines={['Closed editions,', 'season by season.']}
         headingClassName="text-d2"

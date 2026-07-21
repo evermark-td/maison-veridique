@@ -20,7 +20,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
       </main>
 
       <footer className="container-page py-8 text-center">
-        <p className="text-caption text-paper/40">
+        <p className="text-caption text-paper/55">
           © {new Date().getFullYear()} {siteConfig.name}
         </p>
       </footer>

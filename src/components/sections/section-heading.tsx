@@ -4,7 +4,8 @@ import { cn } from '@/lib/utils';
 type SectionHeadingProps = {
   eyebrow: string;
   lines: string[];
-  as?: 'h2' | 'h3';
+  /** Heading level. Use h1 only on standalone pages where this IS the page title. */
+  as?: 'h1' | 'h2' | 'h3';
   className?: string;
   headingClassName?: string;
   align?: 'left' | 'center';

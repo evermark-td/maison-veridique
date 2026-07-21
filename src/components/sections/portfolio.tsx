@@ -1,14 +1,23 @@
+import Image from 'next/image';
 import Link from 'next/link';
 
 import { FadeIn } from '@/components/motion/fade-in';
-import { ParallaxImage } from '@/components/motion/parallax-image';
-import { CollectionCard } from '@/components/sections/collection-card';
+import { CollectionCard, type PortfolioCollection } from '@/components/sections/collection-card';
 import { SectionHeading } from '@/components/sections/section-heading';
 import type { PortfolioContent } from '@/config/collections';
 
-export function Portfolio({ content }: { content: PortfolioContent }) {
-  const { eyebrow, headingLines, intro, cta, featured, collections } = content;
-  const featuredHref = `/collections/${featured.slug}`;
+type PortfolioProps = {
+  /** Editorial header copy (eyebrow, heading, intro, CTA) — design content. */
+  content: Pick<PortfolioContent, 'eyebrow' | 'headingLines' | 'intro' | 'cta'>;
+  /** Live collections from the database; first entry leads as the featured season. */
+  collections: PortfolioCollection[];
+};
+
+export function Portfolio({ content, collections }: PortfolioProps) {
+  const { eyebrow, headingLines, intro, cta } = content;
+  const [featured, ...archive] = collections;
+
+  if (!featured) return null;
 
   return (
     // Opaque tint (paper + bone blend) — no transparency in the scroll stack,
@@ -38,32 +47,54 @@ export function Portfolio({ content }: { content: PortfolioContent }) {
         {/* Featured collection */}
         <FadeIn className="mt-16 lg:mt-24" y={0}>
           <Link
-            href={featuredHref}
+            href={`/collections/${featured.slug}`}
             className="group grid grid-cols-1 gap-x-14 gap-y-8 lg:grid-cols-12 lg:items-center"
           >
             <div className="lg:col-span-7">
-              <ParallaxImage
-                src={featured.image.src}
-                alt={featured.image.alt}
-                sizes="(min-width: 1024px) 58vw, 100vw"
-                ratioClassName="aspect-[4/3] lg:aspect-[16/11]"
-              />
+              <div className="relative aspect-[4/3] overflow-hidden bg-bone lg:aspect-[16/11]">
+                {featured.image ? (
+                  <Image
+                    src={featured.image.src}
+                    alt={featured.image.alt}
+                    fill
+                    sizes="(min-width: 1024px) 58vw, 100vw"
+                    className="object-cover transition-transform duration-700 [transition-timing-function:var(--ease-luxe)] group-hover:scale-[1.03]"
+                    {...(featured.image.blurDataURL
+                      ? { placeholder: 'blur' as const, blurDataURL: featured.image.blurDataURL }
+                      : {})}
+                  />
+                ) : (
+                  <span className="absolute bottom-6 left-6 label-micro">
+                    {featured.season ?? 'The House'}
+                  </span>
+                )}
+              </div>
             </div>
 
             <div className="lg:col-span-5 lg:pl-4">
               <p className="label-micro text-accent">Current season</p>
               <div className="mt-5 flex items-baseline gap-4">
                 <p className="label-micro">
-                  {featured.season} <span className="text-foreground/40">·</span> {featured.year}
+                  {featured.season ?? 'The House'}
+                  {featured.year ? (
+                    <>
+                      {' '}
+                      <span aria-hidden className="text-foreground/40">·</span> {featured.year}
+                    </>
+                  ) : null}
                 </p>
                 <span aria-hidden className="h-px w-10 bg-border" />
-                <p className="label-micro">{featured.pieceCount} pieces</p>
+                <p className="label-micro">
+                  {featured.pieceCount} {featured.pieceCount === 1 ? 'piece' : 'pieces'}
+                </p>
               </div>
 
               <h3 className="display mt-4 text-d3">{featured.title}</h3>
-              <p className="mt-5 max-w-md text-lead text-muted-foreground">
-                {featured.description}
-              </p>
+              {featured.description ? (
+                <p className="mt-5 max-w-md text-lead text-muted-foreground">
+                  {featured.description}
+                </p>
+              ) : null}
 
               <span className="mt-8 inline-flex items-center gap-3 text-micro font-medium uppercase tracking-[0.16em]">
                 <span className="relative">
@@ -81,18 +112,20 @@ export function Portfolio({ content }: { content: PortfolioContent }) {
           </Link>
         </FadeIn>
 
-        {/* Staggered archive grid */}
-        <ul className="mt-20 grid grid-cols-1 gap-x-8 gap-y-16 sm:grid-cols-2 lg:mt-28 lg:grid-cols-3 lg:gap-x-12">
-          {collections.map((collection, index) => (
-            <CollectionCard
-              key={collection.slug}
-              collection={collection}
-              sizes="(min-width: 1024px) 30vw, (min-width: 640px) 45vw, 100vw"
-              offset={index === 1}
-              delay={index * 0.08}
-            />
-          ))}
-        </ul>
+        {/* Archive grid — renders only when more seasons exist */}
+        {archive.length > 0 ? (
+          <ul className="mt-20 grid grid-cols-1 gap-x-8 gap-y-16 sm:grid-cols-2 lg:mt-28 lg:grid-cols-3 lg:gap-x-12">
+            {archive.map((collection, index) => (
+              <CollectionCard
+                key={collection.slug}
+                collection={collection}
+                sizes="(min-width: 1024px) 30vw, (min-width: 640px) 45vw, 100vw"
+                offset={index === 1}
+                delay={index * 0.08}
+              />
+            ))}
+          </ul>
+        ) : null}
 
         {/* Footer CTA */}
         <FadeIn className="mt-20 flex justify-center lg:mt-28">

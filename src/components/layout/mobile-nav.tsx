@@ -39,6 +39,9 @@ export function MobileNav({ open, onOpenChange }: MobileNavProps) {
 
             <Dialog.Content asChild aria-describedby={undefined}>
               <motion.div
+                // Radix Dialog does not set aria-modal by default — required
+                // for screen readers to recognise the content beneath as inert.
+                aria-modal="true"
                 initial={reduceMotion ? { opacity: 0 } : { x: '100%' }}
                 animate={reduceMotion ? { opacity: 1 } : { x: 0 }}
                 exit={reduceMotion ? { opacity: 0 } : { x: '100%' }}

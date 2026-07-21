@@ -36,7 +36,7 @@ export function Marquee({
         <li
           key={`${item}-${index}`}
           className={cn(
-            'display shrink-0 text-2xl whitespace-nowrap text-foreground/45 sm:text-3xl',
+            'display shrink-0 text-2xl whitespace-nowrap text-foreground/60 sm:text-3xl',
             itemClassName,
           )}
         >

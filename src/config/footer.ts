@@ -26,8 +26,7 @@ export const footerContent: FooterContent = {
       heading: 'Collections',
       links: [
         { label: 'Autumn–Winter 26', href: '/collections/autumn-winter-26' },
-        { label: 'Spring–Summer 26', href: '/collections/spring-summer-26' },
-        { label: 'The Archive', href: '/collections/rare-cloths' },
+        { label: 'The Archive', href: '/collections' },
         { label: 'All Collections', href: '/collections' },
       ],
     },

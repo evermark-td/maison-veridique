@@ -31,7 +31,9 @@
   --color-secondary: var(--color-bone);
   --color-secondary-foreground: var(--color-ink);
   --color-muted: var(--color-bone);
-  --color-muted-foreground: var(--color-stone);
+  /* Darker than raw stone so body copy passes WCAG AA on paper (~4.8:1).
+     Stone itself (used for decorative accents) stays at its lighter value. */
+  --color-muted-foreground: #767068;
   --color-accent: var(--color-brass);
   --color-accent-foreground: var(--color-paper);
   --color-destructive: #8b2f2f;

@@ -5,6 +5,8 @@ import { notFound } from 'next/navigation';
 
 import { FadeIn } from '@/components/motion/fade-in';
 import { TextReveal } from '@/components/motion/text-reveal';
+import { JsonLd } from '@/components/seo/json-ld';
+import { breadcrumbJsonLd } from '@/lib/jsonld';
 import { getPublishedCollectionBySlug } from '@/lib/queries/catalogue';
 import { buildMetadata } from '@/lib/seo';
 import { formatPrice } from '@/lib/utils';
@@ -35,8 +37,14 @@ export default async function CollectionDetailPage({ params }: PageProps) {
   // their existence.
   if (!collection) notFound();
 
+  const breadcrumbs = breadcrumbJsonLd([
+    { name: 'Collections', path: '/collections' },
+    { name: collection.title, path: `/collections/${collection.slug}` },
+  ]);
+
   return (
     <div className="container-page py-16 lg:py-24">
+      <JsonLd data={breadcrumbs} />
       {/* Header */}
       <div className="max-w-3xl">
         <FadeIn immediate y={0}>
@@ -44,7 +52,7 @@ export default async function CollectionDetailPage({ params }: PageProps) {
             <Link href="/collections" className="transition-colors duration-300 hover:text-foreground">
               Collections
             </Link>
-            <span className="text-foreground/40"> / </span>
+            <span aria-hidden className="text-foreground/40"> / </span>
             {collection.season}
             {collection.year ? ` · ${collection.year}` : ''}
           </p>

@@ -1,7 +1,9 @@
 import type { Metadata, Viewport } from 'next';
 
+import { JsonLd } from '@/components/seo/json-ld';
 import { fontDisplay, fontSans } from '@/lib/fonts';
-import { buildMetadata, siteConfig } from '@/lib/seo';
+import { organizationJsonLd, websiteJsonLd } from '@/lib/jsonld';
+import { buildMetadata } from '@/lib/seo';
 import { cn } from '@/lib/utils';
 import { Providers } from '@/providers';
 import '@/styles/globals.css';
@@ -13,14 +15,6 @@ export const viewport: Viewport = {
   colorScheme: 'light',
   width: 'device-width',
   initialScale: 1,
-};
-
-const organizationJsonLd = {
-  '@context': 'https://schema.org',
-  '@type': 'Organization',
-  name: siteConfig.name,
-  url: siteConfig.url,
-  description: siteConfig.description,
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -44,10 +38,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           Skip to content
         </a>
         <Providers>{children}</Providers>
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }}
-        />
+        <JsonLd data={[organizationJsonLd, websiteJsonLd]} />
       </body>
     </html>
   );

@@ -39,7 +39,7 @@ export function Footer() {
           <nav aria-label="Footer" className="grid grid-cols-2 gap-x-8 gap-y-10 sm:grid-cols-4 lg:col-span-8">
             {columns.map((column) => (
               <div key={column.heading}>
-                <p className="label-micro text-paper/45">{column.heading}</p>
+                <p className="label-micro text-paper/55">{column.heading}</p>
                 <ul className="mt-5 space-y-3">
                   {column.links.map((link) => (
                     <li key={link.href + link.label}>
@@ -63,7 +63,7 @@ export function Footer() {
         {/* Bottom bar */}
         <div className="mt-16 flex flex-col gap-6 border-t border-paper/15 pt-8 lg:mt-24 lg:flex-row lg:items-center lg:justify-between">
           <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
-            <p className="text-caption text-paper/45">
+            <p className="text-caption text-paper/55">
               © {year} {siteConfig.name}. All rights reserved.
             </p>
             <ul className="flex flex-wrap gap-x-5">
@@ -71,7 +71,7 @@ export function Footer() {
                 <li key={link.href}>
                   <Link
                     href={link.href}
-                    className="text-caption text-paper/45 transition-colors duration-300 hover:text-paper"
+                    className="text-caption text-paper/55 transition-colors duration-300 hover:text-paper"
                   >
                     {link.label}
                   </Link>

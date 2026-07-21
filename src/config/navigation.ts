@@ -47,9 +47,9 @@ export const mainNav: NavItem[] = [
       {
         heading: 'The Archive',
         links: [
-          { label: 'Spring–Summer 26', href: '/collections/spring-summer-26' },
-          { label: 'Autumn–Winter 25', href: '/collections/autumn-winter-25' },
-          { label: 'Rare Cloths', href: '/collections/rare-cloths' },
+          // Past seasons link to the index until their collections are published.
+          { label: 'Past Seasons', href: '/collections' },
+          { label: 'Rare Cloths', href: '/collections' },
           { label: 'All Collections', href: '/collections' },
         ],
       },
@@ -64,9 +64,9 @@ export const mainNav: NavItem[] = [
       },
     ],
     feature: {
-      eyebrow: 'Lookbook',
+      eyebrow: 'Autumn–Winter 26',
       title: 'A Winter in Cashmere',
-      href: '/lookbook',
+      href: '/collections/autumn-winter-26',
       imageSrc: '/images/collection-aw26.jpg',
       imageAlt: 'Model wearing a long cashmere coat against a stone wall',
     },

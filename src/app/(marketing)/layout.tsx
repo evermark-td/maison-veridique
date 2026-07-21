@@ -1,11 +1,14 @@
 import { Footer } from '@/components/layout/footer';
 import { SiteHeader } from '@/components/layout/site-header';
 import { SiteMain } from '@/components/layout/site-main';
+import { getCartCount } from '@/lib/cart';
 
-export default function MarketingLayout({ children }: { children: React.ReactNode }) {
+export default async function MarketingLayout({ children }: { children: React.ReactNode }) {
+  const cartCount = await getCartCount();
+
   return (
     <div className="flex min-h-dvh flex-col">
-      <SiteHeader />
+      <SiteHeader cartCount={cartCount} />
       <SiteMain>{children}</SiteMain>
       <Footer />
     </div>

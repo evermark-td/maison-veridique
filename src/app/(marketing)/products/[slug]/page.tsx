@@ -5,11 +5,18 @@ import { notFound } from 'next/navigation';
 
 import { FadeIn } from '@/components/motion/fade-in';
 import { TextReveal } from '@/components/motion/text-reveal';
+import { ProductPurchase } from '@/components/product/product-purchase';
+import { WishlistButton } from '@/components/product/wishlist-button';
+import { JsonLd } from '@/components/seo/json-ld';
+import { getCurrentUser } from '@/lib/auth';
+import { breadcrumbJsonLd, productJsonLd } from '@/lib/jsonld';
+import { prisma } from '@/lib/prisma';
 import { getPublishedProductBySlug } from '@/lib/queries/catalogue';
 import { buildMetadata } from '@/lib/seo';
 import { formatPrice } from '@/lib/utils';
 
-export const revalidate = 300;
+// Dynamic: the wishlist state is per-user (reads the session).
+export const dynamic = 'force-dynamic';
 
 type PageProps = { params: Promise<{ slug: string }> };
 
@@ -31,6 +38,16 @@ export default async function ProductDetailPage({ params }: PageProps) {
 
   if (!product) notFound();
 
+  const user = await getCurrentUser();
+  const saved = user
+    ? Boolean(
+        await prisma.wishlistItem.findUnique({
+          where: { userId_productId: { userId: user.id, productId: product.id } },
+          select: { id: true },
+        }),
+      )
+    : false;
+
   const leadImage = product.images[0];
 
   const details = [
@@ -45,8 +62,30 @@ export default async function ProductDetailPage({ params }: PageProps) {
     },
   ].filter((d) => d.value);
 
+  const inStock = product.variants.some((variant) => variant.stock > 0);
+
+  const structuredData = [
+    productJsonLd({
+      name: product.name,
+      slug: product.slug,
+      description: product.description,
+      price: Number(product.basePrice),
+      currency: product.currency,
+      imageUrl: leadImage?.media.url,
+      inStock,
+    }),
+    breadcrumbJsonLd([
+      { name: 'Collections', path: '/collections' },
+      ...(product.collection
+        ? [{ name: product.collection.title, path: `/collections/${product.collection.slug}` }]
+        : []),
+      { name: product.name, path: `/products/${product.slug}` },
+    ]),
+  ];
+
   return (
     <div className="container-page py-16 lg:py-24">
+      <JsonLd data={structuredData} />
       <article className="mx-auto max-w-3xl">
         {/* Breadcrumb */}
         <FadeIn immediate y={0}>
@@ -56,7 +95,7 @@ export default async function ProductDetailPage({ params }: PageProps) {
             </Link>
             {product.collection ? (
               <>
-                <span className="text-foreground/40"> / </span>
+                <span aria-hidden className="text-foreground/40"> / </span>
                 <Link
                   href={`/collections/${product.collection.slug}`}
                   className="transition-colors duration-300 hover:text-foreground"
@@ -77,14 +116,23 @@ export default async function ProductDetailPage({ params }: PageProps) {
         />
 
         <FadeIn immediate delay={0.2}>
-          <p className="mt-5 text-lead font-medium">
-            {formatPrice(Number(product.basePrice), product.currency)}
-          </p>
+          <div className="mt-5 flex items-center justify-between gap-6">
+            <p className="text-lead font-medium">
+              {formatPrice(Number(product.basePrice), product.currency)}
+            </p>
+            <WishlistButton productId={product.id} initialSaved={saved} isSignedIn={Boolean(user)} />
+          </div>
         </FadeIn>
 
         <FadeIn immediate delay={0.28}>
           <p className="mt-8 text-lead text-foreground/85">{product.description}</p>
         </FadeIn>
+
+        {product.variants.length > 0 ? (
+          <FadeIn immediate delay={0.34}>
+            <ProductPurchase variants={product.variants} />
+          </FadeIn>
+        ) : null}
 
         {leadImage ? (
           <FadeIn delay={0.05}>
@@ -164,26 +212,28 @@ export default async function ProductDetailPage({ params }: PageProps) {
           </FadeIn>
         ) : null}
 
-        {/* Enquiry-led commerce until cart/checkout lands */}
-        <FadeIn delay={0.15}>
-          <div className="mt-12 flex flex-wrap items-center gap-x-10 gap-y-5">
-            <Link
-              href="/#contact-heading"
-              className="group inline-flex items-center gap-3 border border-foreground px-10 py-4 text-micro font-medium tracking-[0.16em] uppercase transition-colors duration-500 [transition-timing-function:var(--ease-luxe)] hover:bg-foreground hover:text-background"
-            >
-              Enquire about this piece
-              <span
-                aria-hidden
-                className="transition-transform duration-500 [transition-timing-function:var(--ease-luxe)] group-hover:translate-x-1.5"
+        {/* Pieces without variants are enquiry-led — a client advisor arranges them. */}
+        {product.variants.length === 0 ? (
+          <FadeIn delay={0.15}>
+            <div className="mt-12 flex flex-wrap items-center gap-x-10 gap-y-5 border-t border-border pt-10">
+              <Link
+                href="/contact"
+                className="group inline-flex items-center gap-3 border border-foreground px-10 py-4 text-micro font-medium tracking-[0.16em] uppercase transition-colors duration-500 [transition-timing-function:var(--ease-luxe)] hover:bg-foreground hover:text-background"
               >
-                →
-              </span>
-            </Link>
-            <p className="max-w-xs text-caption text-muted-foreground">
-              A client advisor will confirm sizing, cloth availability and delivery.
-            </p>
-          </div>
-        </FadeIn>
+                Enquire about this piece
+                <span
+                  aria-hidden
+                  className="transition-transform duration-500 [transition-timing-function:var(--ease-luxe)] group-hover:translate-x-1.5"
+                >
+                  →
+                </span>
+              </Link>
+              <p className="max-w-xs text-caption text-muted-foreground">
+                A client advisor will confirm sizing, cloth availability and delivery.
+              </p>
+            </div>
+          </FadeIn>
+        ) : null}
       </article>
     </div>
   );

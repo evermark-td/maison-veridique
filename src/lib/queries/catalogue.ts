@@ -85,6 +85,17 @@ export function getPublishedProductBySlug(slug: string) {
           media: { select: { url: true, blurDataUrl: true, width: true, height: true } },
         },
       },
+      variants: {
+        where: { isActive: true },
+        orderBy: [{ colorName: 'asc' }, { size: 'asc' }],
+        select: {
+          id: true,
+          colorName: true,
+          colorHex: true,
+          size: true,
+          stock: true,
+        },
+      },
     },
   });
 }
