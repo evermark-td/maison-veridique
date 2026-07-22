@@ -1,24 +1,23 @@
 import { siteConfig } from '@/lib/seo';
 import { formatPrice } from '@/lib/utils';
 
-import { renderEmail, type EmailLineItem } from './layout';
+import { renderEmail } from './layout';
+import {
+  orderAddressLines,
+  orderLineItems,
+  orderTotalsRows,
+  type OrderAddress,
+  type OrderItemLine,
+} from './order-parts';
 
 export type OrderConfirmationData = {
   orderNumber: string;
   currency: string;
-  items: { name: string; sku: string; quantity: number; unitPrice: number }[];
+  items: OrderItemLine[];
   subtotal: number;
   shipping: number;
   total: number;
-  address: {
-    fullName: string;
-    line1: string;
-    line2?: string | null;
-    city: string;
-    region?: string | null;
-    postalCode: string;
-    country: string;
-  };
+  address: OrderAddress;
 };
 
 /**
@@ -33,19 +32,8 @@ export function orderConfirmationEmail(data: OrderConfirmationData): {
 } {
   const subject = `Your order ${data.orderNumber} — ${siteConfig.name}`;
 
-  const lineItems: EmailLineItem[] = data.items.map((item) => ({
-    name: item.name,
-    meta: `${item.sku} · ×${item.quantity}`,
-    amount: formatPrice(item.unitPrice * item.quantity, data.currency),
-  }));
-
-  const addressLines = [
-    data.address.fullName,
-    data.address.line1,
-    data.address.line2 ?? '',
-    [data.address.city, data.address.region, data.address.postalCode].filter(Boolean).join(', '),
-    data.address.country,
-  ];
+  const lineItems = orderLineItems(data.items, data.currency);
+  const addressLines = orderAddressLines(data.address);
 
   const html = renderEmail({
     preheader: `Order ${data.orderNumber} is with the house — an advisor will be in touch within one business day.`,
@@ -59,15 +47,7 @@ export function orderConfirmationEmail(data: OrderConfirmationData): {
       { type: 'lineItems', items: lineItems },
       {
         type: 'totals',
-        rows: [
-          { label: 'Subtotal', value: formatPrice(data.subtotal, data.currency) },
-          {
-            label: 'Shipping',
-            value:
-              data.shipping === 0 ? 'Complimentary' : formatPrice(data.shipping, data.currency),
-          },
-          { label: 'Total', value: formatPrice(data.total, data.currency), strong: true },
-        ],
+        rows: orderTotalsRows(data.subtotal, data.shipping, data.total, data.currency),
       },
       { type: 'divider' },
       { type: 'addressBlock', label: 'Delivery to', lines: addressLines },

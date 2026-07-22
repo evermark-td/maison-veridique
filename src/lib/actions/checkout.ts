@@ -9,6 +9,8 @@ import { getCurrentUser } from '@/lib/auth';
 import { getCartForRead } from '@/lib/cart';
 import { sendEmail } from '@/lib/email/client';
 import { orderConfirmationEmail } from '@/lib/email/templates/order-confirmation';
+import { orderNotificationEmail } from '@/lib/email/templates/order-notification';
+import { env } from '@/lib/env';
 import { prisma } from '@/lib/prisma';
 import { checkoutSchema } from '@/lib/validations/checkout';
 
@@ -17,6 +19,8 @@ export type ActionResult = { ok: true; orderNumber: string } | { ok: false; erro
 const LAST_ORDER_COOKIE = 'last_order';
 const FREE_SHIPPING_THRESHOLD = 1000;
 const FLAT_SHIPPING = 25;
+// House inbox for order notifications (see src/config/contact.ts).
+const ORDERS_INBOX = 'clients@maisonveridique.com';
 
 function newOrderNumber() {
   // 8 base36 chars — human-readable, ample entropy for a boutique catalogue.
@@ -135,10 +139,10 @@ export async function placeOrder(input: unknown): Promise<ActionResult> {
     revalidatePath('/cart');
     revalidatePath('/', 'layout');
 
-    // Order acknowledgement — best-effort. A failed or skipped send must never
-    // fail an order that has already been committed to the database.
+    // Order emails — best-effort. A failed or skipped send must never fail an
+    // order that has already been committed to the database.
     try {
-      const { subject, html, text } = orderConfirmationEmail({
+      const orderData = {
         orderNumber: order.orderNumber,
         currency: order.currency,
         items: items.map((item) => ({
@@ -159,10 +163,28 @@ export async function placeOrder(input: unknown): Promise<ActionResult> {
           postalCode: address.postalCode,
           country: address.country,
         },
+      };
+
+      const confirmation = orderConfirmationEmail(orderData);
+      const notification = orderNotificationEmail({
+        ...orderData,
+        customerName: address.fullName,
+        customerEmail: order.email,
+        placedAt: order.placedAt,
       });
-      await sendEmail({ to: order.email, subject, html, text });
+
+      await Promise.all([
+        // Acknowledge the customer.
+        sendEmail({ to: order.email, ...confirmation }),
+        // Notify the house; replyTo lets an advisor answer the customer directly.
+        sendEmail({
+          to: env.ORDERS_TO ?? ORDERS_INBOX,
+          replyTo: order.email,
+          ...notification,
+        }),
+      ]);
     } catch (error) {
-      console.error('[placeOrder] confirmation email failed', error);
+      console.error('[placeOrder] order emails failed', error);
     }
 
     return { ok: true, orderNumber: order.orderNumber };
