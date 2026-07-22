@@ -38,7 +38,7 @@ export default function GlobalError({ error, reset }: GlobalErrorProps) {
               fontWeight: 500,
               letterSpacing: '0.16em',
               textTransform: 'uppercase',
-              color: '#767068',
+              color: '#6b655d',
               margin: 0,
             }}
           >
@@ -62,7 +62,7 @@ export default function GlobalError({ error, reset }: GlobalErrorProps) {
               fontFamily: 'system-ui, -apple-system, sans-serif',
               fontSize: 18,
               lineHeight: 1.6,
-              color: '#767068',
+              color: '#6b655d',
               margin: '2rem 0 0',
               maxWidth: '32rem',
             }}
@@ -97,7 +97,7 @@ export default function GlobalError({ error, reset }: GlobalErrorProps) {
                 fontWeight: 500,
                 letterSpacing: '0.16em',
                 textTransform: 'uppercase',
-                color: '#767068',
+                color: '#6b655d',
                 margin: '3rem 0 0',
               }}
             >

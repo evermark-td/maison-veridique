@@ -43,7 +43,7 @@ export default async function OpengraphImage() {
           fontSize: 18,
           letterSpacing: '0.28em',
           textTransform: 'uppercase',
-          color: '#767068',
+          color: '#6b655d',
         }}
       >
         {siteConfig.shortName}
@@ -81,7 +81,7 @@ export default async function OpengraphImage() {
           fontSize: 16,
           letterSpacing: '0.24em',
           textTransform: 'uppercase',
-          color: '#767068',
+          color: '#6b655d',
         }}
       >
         <span>Paris</span>
