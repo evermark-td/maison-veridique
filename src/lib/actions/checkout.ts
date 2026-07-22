@@ -7,12 +7,12 @@ import { cookies } from 'next/headers';
 
 import { getCurrentUser } from '@/lib/auth';
 import { getCartForRead } from '@/lib/cart';
+import { sendEmail } from '@/lib/email/client';
+import { orderConfirmationEmail } from '@/lib/email/templates/order-confirmation';
 import { prisma } from '@/lib/prisma';
 import { checkoutSchema } from '@/lib/validations/checkout';
 
-export type ActionResult =
-  | { ok: true; orderNumber: string }
-  | { ok: false; error: string };
+export type ActionResult = { ok: true; orderNumber: string } | { ok: false; error: string };
 
 const LAST_ORDER_COOKIE = 'last_order';
 const FREE_SHIPPING_THRESHOLD = 1000;
@@ -134,6 +134,36 @@ export async function placeOrder(input: unknown): Promise<ActionResult> {
 
     revalidatePath('/cart');
     revalidatePath('/', 'layout');
+
+    // Order acknowledgement — best-effort. A failed or skipped send must never
+    // fail an order that has already been committed to the database.
+    try {
+      const { subject, html, text } = orderConfirmationEmail({
+        orderNumber: order.orderNumber,
+        currency: order.currency,
+        items: items.map((item) => ({
+          name: `${item.variant.product.name} — ${item.variant.colorName} · ${item.variant.size}`,
+          sku: item.variant.sku,
+          quantity: item.quantity,
+          unitPrice: Number(item.variant.price),
+        })),
+        subtotal: Number(order.subtotal),
+        shipping: Number(order.shipping),
+        total: Number(order.total),
+        address: {
+          fullName: address.fullName,
+          line1: address.line1,
+          line2: address.line2 || null,
+          city: address.city,
+          region: address.region || null,
+          postalCode: address.postalCode,
+          country: address.country,
+        },
+      });
+      await sendEmail({ to: order.email, subject, html, text });
+    } catch (error) {
+      console.error('[placeOrder] confirmation email failed', error);
+    }
 
     return { ok: true, orderNumber: order.orderNumber };
   } catch (error) {

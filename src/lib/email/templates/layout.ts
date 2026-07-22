@@ -8,11 +8,19 @@ const PAPER = '#faf9f7';
 const MUTED = '#6b655d';
 const BORDER = '#efebe5';
 
+export type EmailLineItem = { name: string; meta: string; amount: string };
+export type EmailTotalRow = { label: string; value: string; strong?: boolean };
+
 export type EmailSection =
   | { type: 'heading'; text: string }
   | { type: 'paragraph'; text: string }
   | { type: 'button'; label: string; href: string }
-  | { type: 'fallbackLink'; label: string; href: string };
+  | { type: 'fallbackLink'; label: string; href: string }
+  | { type: 'eyebrow'; text: string }
+  | { type: 'divider' }
+  | { type: 'lineItems'; items: EmailLineItem[] }
+  | { type: 'totals'; rows: EmailTotalRow[] }
+  | { type: 'addressBlock'; label: string; lines: string[] };
 
 /** Escapes text interpolated into email HTML. */
 function escapeHtml(value: string): string {
@@ -45,6 +53,48 @@ function renderSection(section: EmailSection): string {
       )}<br /><a href="${escapeHtml(section.href)}" style="color:${MUTED};word-break:break-all;">${escapeHtml(
         section.href,
       )}</a></p>`;
+    case 'eyebrow':
+      return `<p style="margin:0 0 20px;font-family:Arial,Helvetica,sans-serif;font-size:11px;font-weight:500;letter-spacing:0.16em;text-transform:uppercase;color:${MUTED};">${escapeHtml(
+        section.text,
+      )}</p>`;
+    case 'divider':
+      return `<hr style="margin:24px 0;border:none;border-top:1px solid ${BORDER};" />`;
+    case 'lineItems': {
+      const rows = section.items
+        .map(
+          (item) =>
+            `<tr><td style="padding:14px 0;border-bottom:1px solid ${BORDER};vertical-align:top;"><span style="font-family:Georgia,'Times New Roman',serif;font-size:15px;color:${INK};">${escapeHtml(
+              item.name,
+            )}</span><br /><span style="font-family:Arial,Helvetica,sans-serif;font-size:11px;letter-spacing:0.08em;color:${MUTED};">${escapeHtml(
+              item.meta,
+            )}</span></td><td style="padding:14px 0;border-bottom:1px solid ${BORDER};vertical-align:top;text-align:right;white-space:nowrap;font-family:Georgia,'Times New Roman',serif;font-size:15px;color:${INK};">${escapeHtml(
+              item.amount,
+            )}</td></tr>`,
+        )
+        .join('');
+      return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:8px 0 20px;">${rows}</table>`;
+    }
+    case 'totals': {
+      const rows = section.rows
+        .map((row) => {
+          const label = `<td style="padding:6px 0;font-family:Arial,Helvetica,sans-serif;font-size:13px;color:${
+            row.strong ? INK : MUTED
+          };">${escapeHtml(row.label)}</td>`;
+          const value = `<td style="padding:6px 0;text-align:right;white-space:nowrap;font-family:Georgia,'Times New Roman',serif;font-size:${
+            row.strong ? '20px' : '15px'
+          };color:${INK};">${escapeHtml(row.value)}</td>`;
+          const top = row.strong ? `border-top:1px solid ${BORDER};` : '';
+          return `<tr style="${top}">${label}${value}</tr>`;
+        })
+        .join('');
+      return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 20px;">${rows}</table>`;
+    }
+    case 'addressBlock': {
+      const lines = section.lines.filter(Boolean).map(escapeHtml).join('<br />');
+      return `<p style="margin:0 0 8px;font-family:Arial,Helvetica,sans-serif;font-size:11px;font-weight:500;letter-spacing:0.16em;text-transform:uppercase;color:${MUTED};">${escapeHtml(
+        section.label,
+      )}</p><p style="margin:0 0 20px;font-family:Georgia,'Times New Roman',serif;font-size:15px;line-height:1.6;color:${INK};">${lines}</p>`;
+    }
   }
 }
 
