@@ -1,5 +1,6 @@
 import type { MetadataRoute } from 'next';
 
+import { LEGAL_DOCS } from '@/config/legal';
 import { prisma } from '@/lib/prisma';
 import { siteConfig } from '@/lib/seo';
 
@@ -28,10 +29,11 @@ const STATIC_ROUTES: StaticRoute[] = [
   { path: '/faq', changeFrequency: 'monthly', priority: 0.5 },
   { path: '/contact', changeFrequency: 'monthly', priority: 0.6 },
   { path: '/size-guide', changeFrequency: 'yearly', priority: 0.4 },
-  { path: '/legal/privacy', changeFrequency: 'yearly', priority: 0.3 },
-  { path: '/legal/terms', changeFrequency: 'yearly', priority: 0.3 },
-  { path: '/legal/cookies', changeFrequency: 'yearly', priority: 0.3 },
-  { path: '/legal/shipping-returns', changeFrequency: 'yearly', priority: 0.3 },
+  ...Object.keys(LEGAL_DOCS).map((slug): StaticRoute => ({
+    path: `/legal/${slug}`,
+    changeFrequency: 'yearly',
+    priority: 0.3,
+  })),
 ];
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
