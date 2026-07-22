@@ -2,6 +2,8 @@
 
 import bcrypt from 'bcryptjs';
 
+import { sendEmail } from '@/lib/email/client';
+import { welcomeEmail } from '@/lib/email/templates/welcome';
 import { prisma } from '@/lib/prisma';
 import { signUpSchema } from '@/lib/validations/auth';
 
@@ -28,15 +30,25 @@ export async function signUp(input: unknown): Promise<ActionResult> {
     }
 
     const passwordHash = await bcrypt.hash(parsed.data.password, 12);
+    const name = parsed.data.name.trim();
 
     await prisma.user.create({
       data: {
-        name: parsed.data.name.trim(),
+        name,
         email,
         passwordHash,
         role: 'USER',
       },
     });
+
+    // Welcome email — best-effort. A failed or skipped send must never fail an
+    // account that has already been created.
+    try {
+      const { subject, html, text } = welcomeEmail(name);
+      await sendEmail({ to: email, subject, html, text });
+    } catch (error) {
+      console.error('[signUp] welcome email failed', error);
+    }
 
     return { ok: true };
   } catch (error) {
