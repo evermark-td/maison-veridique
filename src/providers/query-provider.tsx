@@ -1,8 +1,20 @@
 'use client';
 
 import { QueryClient, QueryClientProvider, isServer } from '@tanstack/react-query';
-import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
+import dynamic from 'next/dynamic';
 import { useState } from 'react';
+
+// Devtools are loaded dynamically in dev only. The dynamic import + NODE_ENV
+// guard together guarantee the ~250 KB devtools chunk is dropped from the
+// production bundle (belt-and-braces — even if tree-shaking misses it).
+const ReactQueryDevtools =
+  process.env.NODE_ENV === 'development'
+    ? dynamic(
+        () =>
+          import('@tanstack/react-query-devtools').then((mod) => mod.ReactQueryDevtools),
+        { ssr: false },
+      )
+    : () => null;
 
 function makeQueryClient() {
   return new QueryClient({
