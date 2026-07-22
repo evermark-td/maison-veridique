@@ -2,7 +2,10 @@
 
 import { randomBytes } from 'node:crypto';
 
+import { sendEmail } from '@/lib/email/client';
+import { newsletterConfirmationEmail } from '@/lib/email/templates/newsletter-confirmation';
 import { prisma } from '@/lib/prisma';
+import { siteConfig } from '@/lib/seo';
 import { newsletterSchema } from '@/lib/validations/newsletter';
 
 export type ActionResult = { ok: true } | { ok: false; error: string };
@@ -44,7 +47,13 @@ export async function subscribeToNewsletter(input: unknown): Promise<ActionResul
       create: { email, token, source: 'footer' },
     });
 
-    // Phase 4 (email): send the confirmation link containing `token`.
+    // Send the double opt-in link. A failed or skipped send (e.g. no API key in
+    // development) must not fail the request — the caller can re-submit to get a
+    // fresh token and email, and we never reveal list membership either way.
+    const confirmUrl = `${siteConfig.url}/api/newsletter/confirm?token=${token}`;
+    const { subject, html, text } = newsletterConfirmationEmail(confirmUrl);
+    await sendEmail({ to: email, subject, html, text });
+
     return { ok: true };
   } catch (error) {
     console.error('[subscribeToNewsletter] failed', error);

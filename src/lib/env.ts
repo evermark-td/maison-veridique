@@ -8,6 +8,7 @@ const serverSchema = z.object({
   AUTH_GOOGLE_ID: z.string().optional(),
   AUTH_GOOGLE_SECRET: z.string().optional(),
   RESEND_API_KEY: z.string().optional(),
+  EMAIL_FROM: z.string().optional(),
   BLOB_READ_WRITE_TOKEN: z.string().optional(),
 });
 
@@ -31,7 +32,8 @@ function parseEnv() {
   }
 
   if (!isServer) {
-    return { ...client.data } as z.infer<typeof clientSchema> & Partial<z.infer<typeof serverSchema>>;
+    return { ...client.data } as z.infer<typeof clientSchema> &
+      Partial<z.infer<typeof serverSchema>>;
   }
 
   const server = serverSchema.safeParse(process.env);
