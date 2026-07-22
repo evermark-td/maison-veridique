@@ -20,7 +20,9 @@ export type EmailSection =
   | { type: 'divider' }
   | { type: 'lineItems'; items: EmailLineItem[] }
   | { type: 'totals'; rows: EmailTotalRow[] }
-  | { type: 'addressBlock'; label: string; lines: string[] };
+  | { type: 'addressBlock'; label: string; lines: string[] }
+  | { type: 'details'; rows: { label: string; value: string }[] }
+  | { type: 'messageBlock'; text: string };
 
 /** Escapes text interpolated into email HTML. */
 function escapeHtml(value: string): string {
@@ -94,6 +96,24 @@ function renderSection(section: EmailSection): string {
       return `<p style="margin:0 0 8px;font-family:Arial,Helvetica,sans-serif;font-size:11px;font-weight:500;letter-spacing:0.16em;text-transform:uppercase;color:${MUTED};">${escapeHtml(
         section.label,
       )}</p><p style="margin:0 0 20px;font-family:Georgia,'Times New Roman',serif;font-size:15px;line-height:1.6;color:${INK};">${lines}</p>`;
+    }
+    case 'details': {
+      const rows = section.rows
+        .map(
+          (row) =>
+            `<tr><td style="padding:8px 0;border-bottom:1px solid ${BORDER};vertical-align:top;width:132px;font-family:Arial,Helvetica,sans-serif;font-size:11px;font-weight:500;letter-spacing:0.12em;text-transform:uppercase;color:${MUTED};">${escapeHtml(
+              row.label,
+            )}</td><td style="padding:8px 0;border-bottom:1px solid ${BORDER};vertical-align:top;font-family:Georgia,'Times New Roman',serif;font-size:15px;color:${INK};">${escapeHtml(
+              row.value,
+            )}</td></tr>`,
+        )
+        .join('');
+      return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:8px 0 20px;">${rows}</table>`;
+    }
+    case 'messageBlock': {
+      // Preserve the sender's own line breaks after escaping.
+      const body = escapeHtml(section.text).replace(/\r?\n/g, '<br />');
+      return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 20px;"><tr><td style="padding:16px 20px;background:#f5f3ef;border-left:2px solid ${INK};font-family:Georgia,'Times New Roman',serif;font-size:15px;line-height:1.65;color:${INK};">${body}</td></tr></table>`;
     }
   }
 }

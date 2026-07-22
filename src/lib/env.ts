@@ -9,6 +9,7 @@ const serverSchema = z.object({
   AUTH_GOOGLE_SECRET: z.string().optional(),
   RESEND_API_KEY: z.string().optional(),
   EMAIL_FROM: z.string().optional(),
+  ENQUIRIES_TO: z.string().optional(),
   BLOB_READ_WRITE_TOKEN: z.string().optional(),
 });
 
