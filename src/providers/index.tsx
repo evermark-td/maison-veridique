@@ -1,8 +1,10 @@
 'use client';
 
 import { SessionProvider } from 'next-auth/react';
+import { Suspense } from 'react';
 import { Toaster } from 'sonner';
 
+import { NewsletterStatusToast } from '@/components/layout/newsletter-status-toast';
 import { QueryProvider } from '@/providers/query-provider';
 
 export function Providers({ children }: { children: React.ReactNode }) {
@@ -10,6 +12,10 @@ export function Providers({ children }: { children: React.ReactNode }) {
     <SessionProvider>
       <QueryProvider>
         {children}
+        {/* Suspense keeps useSearchParams from de-opting pages to client render. */}
+        <Suspense fallback={null}>
+          <NewsletterStatusToast />
+        </Suspense>
         <Toaster
           position="bottom-right"
           toastOptions={{
